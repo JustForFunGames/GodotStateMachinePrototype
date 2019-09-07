@@ -2,8 +2,8 @@ A simple state machine
 ======================
 
 This project is a learning experience about how to implement a simple state machine.
-I don't assume this code to be helpful to anyone else, but if you really think, you
-can use it, go ahead and fork it.
+I don't assume that this code is helpful to anyone else, but if you really want to
+use it, just go ahead and fork it.
 
 ## Getting Started
 
@@ -12,20 +12,29 @@ helpful to you to get started.
 
 ### Prerequisites
 
-I tested this prototype with the 64bit edition of [Godot 3.1](https://godotengine.org/) 
-on Ubuntu 18.04. 
-
-```
-Give examples
-```
+I tested this prototype with the 64bit edition of [Godot Engine 3.1](https://godotengine.org/) 
+on Ubuntu 18.04.
 
 ### Installing
 
-Clone the repository and open the project in Godot.
+After downloading Godot, you don't need to install anything.
+Just clone the repository and open the project in Godot.
 
 ## Deployment
 
-Feel free to use Godot Deployment to build and deploy an executable.
+To run the code, you just need to press the play button inside the Godot Engine.
+
+If you really like to export the prototype, feel free to use any of the default deployment
+tools of the Godot Engine. The following example shows how to deploy on Ubuntu Linux.
+
+### Deploy on Ubuntu Linux
+
+Load the project in Godot Editor. In the menu, select `Project`->`Export ...` to open the export manager.
+
+In the window that opens, you have to add Export Templates, if you haven't done this yet. Go to `Add ...` and select `Linux/X11`.
+Then press `Export project ...` and select a file location to save the executable. Godot Engine will put the executable file and 
+a resource file in the selected folder. Remember to allways share both files if you distribute it! Both files need to be placed
+in the same folder.
 
 ## Built With
 
