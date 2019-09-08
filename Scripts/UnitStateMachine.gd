@@ -1,7 +1,9 @@
 extends StateMachine
-class_name PlayerStateMachine
+class_name UnitStateMachine
 
 signal enter_state
+signal focused(name)
+signal unfocused(name)
 
 const ACTION_FORWARD = "Forward"
 const ACTION_BACK = "Back"
@@ -11,11 +13,28 @@ const ACTION_SHOOT = "Shoot"
 
 const EPSILON = 0.01
 
+export var focused = false
+
+func focus():
+	focused = true
+	set_state(states.idle)
+	emit_signal("focused", name)
+
+func unfocus():
+	focused = false
+	set_state(states.waiting)
+	emit_signal("unfocused", name)
+
 func _ready():
+	add_state("waiting")
 	add_state("idle")
 	add_state("walk")
-	add_state("shoot")
+	add_state("action")
 	call_deferred("set_state", states.idle)
+	
+	var game = get_tree().get_root().find_node("Game", true, false)
+	if game != null:
+		connect("enter_state", game, "_on_change_state", [state])
 
 func _state_logic(delta):
 	if state == states.walk:
@@ -23,53 +42,53 @@ func _state_logic(delta):
 			parent.walk()
 		if Input.is_action_pressed(ACTION_LEFT) or Input.is_action_pressed(ACTION_RIGHT):
 			parent.turn()
-	if state == states.shoot:
+	if state == states.action:
 		if Input.is_action_pressed(ACTION_SHOOT):
 			parent.shoot()
 
 func get_movement_direction():
 	return get_direction("action_pressed", ACTION_FORWARD, ACTION_BACK)
-	
+
 func get_rotation_direction():
 	return get_direction("action_pressed", ACTION_RIGHT, ACTION_LEFT)
 
 func get_direction(function="", positive=null, negative=null):
 	var direction = 0
-	
+
 	if function and positive and negative:
 		if call(function, positive):
 			direction += 1
-		
+
 		if call(function, negative):
 			direction -= 1
-		
+
 		if direction > -1 * EPSILON and direction < EPSILON:
 			direction = 0.0
-		
+
 		direction = int(sign(direction))
 
 	return direction
 
 func action_pressed(action_name):
-	return Input.is_action_pressed(action_name)
-
-func has_shot():
-	return parent.munition == 0
+	return Input.is_action_pressed(action_name) 
 
 func _get_transition(delta):
-	match state:
-		states.idle:
-			if get_direction("action_pressed", ACTION_FORWARD, ACTION_BACK):
-				return states.walk
-			if get_direction("action_pressed", ACTION_LEFT, ACTION_RIGHT):
-				return states.walk
-		states.walk:
-			if not (Input.is_action_pressed(ACTION_FORWARD) or Input.is_action_pressed(ACTION_BACK) or
-				Input.is_action_pressed(ACTION_LEFT) or Input.is_action_pressed(ACTION_RIGHT)):
-				return states.idle
-		states.shoot:
-			if has_shot():
-				return states.idle
+	if focused:
+		match state:
+			states.idle:
+				if get_direction("action_pressed", ACTION_FORWARD, ACTION_BACK):
+					return states.walk
+				if get_direction("action_pressed", ACTION_LEFT, ACTION_RIGHT):
+					return states.walk
+			states.walk:
+				if not (Input.is_action_pressed(ACTION_FORWARD) or Input.is_action_pressed(ACTION_BACK) or
+					Input.is_action_pressed(ACTION_LEFT) or Input.is_action_pressed(ACTION_RIGHT)):
+					return states.idle
+			states.action:
+				if parent.done():
+					return states.idle
+	else:
+		return states.waiting
 
 func _enter_state(state, current):
 	emit_signal("enter_state", current)
