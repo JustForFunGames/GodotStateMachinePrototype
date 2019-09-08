@@ -1,12 +1,8 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://Scripts/Game.gd" type="Script" id=1]
 [ext_resource path="res://Scenes/Player.tscn" type="PackedScene" id=2]
-[ext_resource path="res://GFX/Fonts/2nd casual.ttf" type="DynamicFontData" id=3]
-
-[sub_resource type="DynamicFont" id=1]
-size = 18
-font_data = ExtResource( 3 )
+[ext_resource path="res://GFX/Fonts/CasualTheme.tres" type="Theme" id=3]
 
 [node name="Game" type="Node2D"]
 script = ExtResource( 1 )
@@ -14,24 +10,48 @@ script = ExtResource( 1 )
 [node name="Units" type="Node" parent="."]
 
 [node name="Player" parent="Units" instance=ExtResource( 2 )]
+editor/display_folded = true
 
-[node name="UserInterfaces" type="Node" parent="."]
+[node name="UI" type="Node" parent="."]
 
-[node name="PrototypeUI" type="Control" parent="UserInterfaces"]
+[node name="Prototype" type="Control" parent="UI"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 
-[node name="VBoxContainer" type="VBoxContainer" parent="UserInterfaces/PrototypeUI"]
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/Prototype"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 alignment = 2
 
-[node name="Label" type="Label" parent="UserInterfaces/PrototypeUI/VBoxContainer"]
+[node name="BottomBar" type="HBoxContainer" parent="UI/Prototype/VBoxContainer"]
 margin_top = 581.0
 margin_right = 1024.0
 margin_bottom = 600.0
-custom_fonts/font = SubResource( 1 )
-text = "Info Label"
+
+[node name="VersionLabel" type="Label" parent="UI/Prototype/VBoxContainer/BottomBar"]
+margin_right = 338.0
+margin_bottom = 19.0
+size_flags_horizontal = 3
+theme = ExtResource( 3 )
+text = "Version Label"
+
+[node name="DebugLabel" type="Label" parent="UI/Prototype/VBoxContainer/BottomBar"]
+margin_left = 342.0
+margin_right = 680.0
+margin_bottom = 19.0
+size_flags_horizontal = 3
+theme = ExtResource( 3 )
+text = "Debug Label"
+align = 1
+
+[node name="TimerLabel" type="Label" parent="UI/Prototype/VBoxContainer/BottomBar"]
+margin_left = 684.0
+margin_right = 1024.0
+margin_bottom = 19.0
+size_flags_horizontal = 3
+theme = ExtResource( 3 )
+text = "Timer Label"
+align = 2
 [connection signal="enter_state" from="Units/Player/PlayerStateMachine" to="." method="_on_change_state"]
 
 [editable path="Units/Player"]
