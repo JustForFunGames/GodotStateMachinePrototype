@@ -26,9 +26,13 @@ func _ready():
 	
 	collect_units()
 
-func collect_units():
+# return all units in <parent>
+# :param parent: name of a parent node of the units. if null, use the local player 
+func collect_units(parent=null):
 	var group_units = null
-	group_units = get_tree().get_root().find_node(player, true, false)
+	if parent == null:
+		parent = player
+	group_units = get_tree().get_root().find_node(parent, true, false)
 	if group_units == null:
 		return 0
 	group_units = group_units.get_children()
@@ -36,6 +40,7 @@ func collect_units():
 		units.append(unit)
 	return units.size()
 	
+# load players and return count of them
 func get_players():
 	var all_units = get_tree().get_root().find_node("Units", true, false)
 	
@@ -46,14 +51,16 @@ func get_players():
 		 players[player.name] = player.name
 	return players.keys().size()
 
+# update ui label for the unit state
 func update_state_label():
 	var state_labeltext = state_text
 	if state_text == "idle":
 		state_labeltext = "stand"
-	var text = "Game \"%s\": Unit \"%s\" is %sing; Network: %s"
-	text = text % [action_text, unit_text, state_labeltext, network_text]
-	$"UI/BottomBar/DebugLabel".text = text
+	var text = "Unit \"%s\" is %sing"
+	return text % [action_text, unit_text, state_labeltext, network_text]
+	
 
+# handle event if a unit state is entered
 func _on_change_state(state):
 	if state in ["walk", "idle"]:
 		action_text = "walk"
@@ -62,7 +69,7 @@ func _on_change_state(state):
 	else:
 		action_text = ""
 	state_text = state
-	update_state_label()
+	$"UI/BottomBar/DebugLabel".text = update_state_label()
 	
 func _on_change_connection(connection):
 	network_text = connection
@@ -76,10 +83,12 @@ func _on_change_timer(seconds):
 	
 	$"UI/BottomBar/TimerLabel".text = text
 
+# unselect all units
 func unselect_all():
 	for unit in units:
 		unit.get_node("UnitStateMachine").unfocus()
 
+# select next unit that is under players control
 func select_next():
 	if selected == null:
 		selected = randi() % units.size()

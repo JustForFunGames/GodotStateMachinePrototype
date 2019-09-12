@@ -21,6 +21,7 @@ func _process(delta):
 	elif Input.is_action_just_pressed("Network_Connect"):
 		connect_to_server()
 
+# create a server peer
 func create_server():
 	emit_signal("creating_server")
 	player_info.name = "Player 1"
@@ -31,6 +32,7 @@ func create_server():
 	emit_signal("server_created")
 	get_tree().set_network_peer(peer)
 	
+# connect to a server
 func connect_to_server():
 	emit_signal("connecting_to_server")
 	player_info.name = "Player 2"
@@ -39,12 +41,14 @@ func connect_to_server():
 	peer.create_client(SERVER_IP, SERVER_PORT)
 	get_tree().set_network_peer(peer)
 	
+# send player info if connected
 func _connected_to_server():
 	var id = get_tree().get_network_unique_id()
 	emit_signal("connected_to_server")
 	players[id] = player_info
 	rpc("_send_player_info", id, player_info)
 	
+# send player information
 remote func _send_player_info(id, info):
 	if get_tree().is_network_server():
 		for peer_id in players:
@@ -54,8 +58,4 @@ remote func _send_player_info(id, info):
 	new_player.name = "Player %s" % str(id)
 	new_player.set_network_master(id)
 	get_tree().get_root().add_child(new_player)
-	
-	 
 
-func _ready():
-	pass
