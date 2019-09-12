@@ -39,7 +39,7 @@ func collect_units(parent=null):
 	for unit in group_units:
 		units.append(unit)
 	return units.size()
-	
+
 # load players and return count of them
 func get_players():
 	var all_units = get_tree().get_root().find_node("Units", true, false)
@@ -58,7 +58,7 @@ func update_state_label():
 		state_labeltext = "stand"
 	var text = "Unit \"%s\" is %sing"
 	return text % [action_text, unit_text, state_labeltext, network_text]
-	
+
 
 # handle event if a unit state is entered
 func _on_change_state(state):
@@ -70,11 +70,11 @@ func _on_change_state(state):
 		action_text = ""
 	state_text = state
 	$"UI/BottomBar/DebugLabel".text = update_state_label()
-	
+
 func _on_change_connection(connection):
 	network_text = connection
 	update_state_label()
-	
+
 func _on_change_timer(seconds):
 	var text = ""
 	
@@ -102,3 +102,4 @@ func select_next():
 func _process(delta):
 	if Input.is_action_just_pressed("select_next"):
 		select_next()
+		
