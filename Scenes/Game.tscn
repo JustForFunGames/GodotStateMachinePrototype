@@ -1,132 +1,31 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://Scripts/Game.gd" type="Script" id=1]
-[ext_resource path="res://Scenes/Units/Soldier.tscn" type="PackedScene" id=2]
-[ext_resource path="res://GFX/Fonts/CasualTheme.tres" type="Theme" id=3]
-[ext_resource path="res://Scripts/Network.gd" type="Script" id=4]
+[ext_resource path="res://Scripts/GameStateMachine.gd" type="Script" id=2]
+[ext_resource path="res://Scenes/UI/test_ui.tscn" type="PackedScene" id=3]
 
-[sub_resource type="StreamTexture" id=1]
-flags = 4
-load_path = "res://.import/soldier01.png-4e465e4919496edae57d30879e61eebf.stex"
-
-[node name="Game" type="Node2D"]
+[node name="Game" type="Node"]
 script = ExtResource( 1 )
+map_file = "res://Scenes/Levels/test_map.tscn"
 
-[node name="Units" type="Node" parent="."]
+[node name="Timer" type="Node" parent="."]
 
-[node name="Red" type="Node" parent="Units"]
+[node name="Wait" type="Timer" parent="Timer"]
+wait_time = 4.0
+one_shot = true
 
-[node name="Soldier" parent="Units/Red" instance=ExtResource( 2 )]
-position = Vector2( 164.051, 163.334 )
+[node name="Move" type="Timer" parent="Timer"]
+wait_time = 10.0
+one_shot = true
 
-[node name="Sprite" parent="Units/Red/Soldier" index="0"]
-self_modulate = Color( 1, 0.356863, 0.356863, 1 )
-texture = SubResource( 1 )
+[node name="GameStateMachine" type="Node" parent="." groups=[
+"GameState",
+"UnitState",
+]]
+script = ExtResource( 2 )
 
-[node name="CollisionShape2D" parent="Units/Red/Soldier" index="1"]
-visible = false
+[node name="Map" type="Node" parent="."]
 
-[node name="Soldier2" parent="Units/Red" instance=ExtResource( 2 )]
-position = Vector2( 242.976, 227.908 )
-
-[node name="Sprite" parent="Units/Red/Soldier2" index="0"]
-self_modulate = Color( 1, 0.356863, 0.356863, 1 )
-
-[node name="CollisionShape2D" parent="Units/Red/Soldier2" index="1"]
-visible = false
-
-[node name="Soldier3" parent="Units/Red" instance=ExtResource( 2 )]
-position = Vector2( 269.284, 103.542 )
-
-[node name="Sprite" parent="Units/Red/Soldier3" index="0"]
-self_modulate = Color( 1, 0.356863, 0.356863, 1 )
-
-[node name="CollisionShape2D" parent="Units/Red/Soldier3" index="1"]
-visible = false
-
-[node name="Blue" type="Node" parent="Units"]
-
-[node name="Soldier" parent="Units/Blue" instance=ExtResource( 2 )]
-position = Vector2( 902.031, 373.558 )
-
-[node name="Soldier2" parent="Units/Blue" instance=ExtResource( 2 )]
-position = Vector2( 841.888, 416.517 )
-
-[node name="UI" type="Node" parent="."]
-editor/display_folded = true
-
-[node name="BottomBar" type="HBoxContainer" parent="UI"]
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-margin_top = -19.0
-
-[node name="VersionLabel" type="Label" parent="UI/BottomBar"]
-margin_right = 338.0
-margin_bottom = 19.0
-size_flags_horizontal = 3
-theme = ExtResource( 3 )
-text = "Version Label"
-
-[node name="DebugLabel" type="Label" parent="UI/BottomBar"]
-margin_left = 342.0
-margin_right = 680.0
-margin_bottom = 19.0
-size_flags_horizontal = 3
-theme = ExtResource( 3 )
-text = "Debug Label"
-align = 1
-
-[node name="TimerLabel" type="Label" parent="UI/BottomBar"]
-margin_left = 684.0
-margin_right = 1024.0
-margin_bottom = 19.0
-size_flags_horizontal = 3
-theme = ExtResource( 3 )
-text = "Timer Label"
-align = 2
-
-[node name="TopBar" type="HBoxContainer" parent="UI"]
-anchor_right = 1.0
-margin_bottom = 19.0
-
-[node name="GameLabel" type="Label" parent="UI/TopBar"]
-margin_right = 338.0
-margin_bottom = 19.0
-size_flags_horizontal = 3
-size_flags_vertical = 5
-theme = ExtResource( 3 )
-text = "Game Label"
-
-[node name="ActionLabel" type="Label" parent="UI/TopBar"]
-margin_left = 342.0
-margin_right = 680.0
-margin_bottom = 19.0
-size_flags_horizontal = 3
-size_flags_vertical = 5
-theme = ExtResource( 3 )
-text = "Action Label"
-align = 1
-
-[node name="NetworkStatusLabel" type="Label" parent="UI/TopBar"]
-margin_left = 684.0
-margin_right = 1024.0
-margin_bottom = 19.0
-size_flags_horizontal = 3
-size_flags_vertical = 5
-theme = ExtResource( 3 )
-text = "Network Status Label"
-align = 2
-
-[node name="Network" type="Node" parent="."]
-script = ExtResource( 4 )
-[connection signal="connected_to_server" from="Network" to="." method="_on_change_connection" binds= [ "Client" ]]
-[connection signal="connecting_to_server" from="Network" to="." method="_on_change_connection" binds= [ "Connecting ..." ]]
-[connection signal="creating_server" from="Network" to="." method="_on_change_connection" binds= [ "Creating Server ..." ]]
-[connection signal="server_created" from="Network" to="." method="_on_change_connection" binds= [ "Server" ]]
-
-[editable path="Units/Red/Soldier"]
-
-[editable path="Units/Red/Soldier2"]
-
-[editable path="Units/Red/Soldier3"]
+[node name="UI" parent="." instance=ExtResource( 3 )]
+[connection signal="timeout" from="Timer/Wait" to="GameStateMachine" method="_on_timeout" binds= [ "walk_and_shoot" ]]
+[connection signal="timeout" from="Timer/Move" to="GameStateMachine" method="_on_timeout" binds= [ "shoot" ]]

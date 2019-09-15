@@ -1,7 +1,6 @@
 extends KinematicBody2D
 class_name Unit
 
-
 export var movement_speed = 500
 export var rotation_speed = 5
 
@@ -24,7 +23,7 @@ func turn():
 	rotation_degrees = rotation
 
 func action():
-	pass
+	get_tree().call_group("UnitState", "on_unit_action")
 
 func done():
-	return true
+	return false

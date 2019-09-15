@@ -1,0 +1,66 @@
+[gd_scene load_steps=6 format=2]
+
+[ext_resource path="res://Scripts/Map.gd" type="Script" id=1]
+[ext_resource path="res://Scripts/PlayerSettings.gd" type="Script" id=2]
+[ext_resource path="res://Scenes/Units/Soldier.tscn" type="PackedScene" id=3]
+[ext_resource path="res://Scripts/Network.gd" type="Script" id=4]
+
+[sub_resource type="StreamTexture" id=1]
+flags = 4
+load_path = "res://.import/soldier01.png-4e465e4919496edae57d30879e61eebf.stex"
+
+[node name="Test Map" type="Node2D" groups=[
+"GameState",
+"Countdown",
+]]
+script = ExtResource( 1 )
+
+[node name="Units" type="Node" parent="."]
+
+[node name="Red" type="Node" parent="Units"]
+script = ExtResource( 2 )
+color = Color( 255, 0, 0, 1 )
+
+[node name="Soldier" parent="Units/Red" instance=ExtResource( 3 )]
+editor/display_folded = true
+position = Vector2( 164.051, 163.334 )
+
+[node name="Sprite" parent="Units/Red/Soldier" index="1"]
+self_modulate = Color( 1, 0.356863, 0.356863, 1 )
+texture = SubResource( 1 )
+
+[node name="Soldier2" parent="Units/Red" instance=ExtResource( 3 )]
+editor/display_folded = true
+position = Vector2( 242.976, 227.908 )
+
+[node name="Sprite" parent="Units/Red/Soldier2" index="1"]
+self_modulate = Color( 1, 0.356863, 0.356863, 1 )
+
+[node name="Soldier3" parent="Units/Red" instance=ExtResource( 3 )]
+editor/display_folded = true
+position = Vector2( 269.284, 103.542 )
+
+[node name="Sprite" parent="Units/Red/Soldier3" index="1"]
+self_modulate = Color( 1, 0.356863, 0.356863, 1 )
+
+[node name="Blue" type="Node" parent="Units"]
+script = ExtResource( 2 )
+
+[node name="Soldier" parent="Units/Blue" instance=ExtResource( 3 )]
+position = Vector2( 902.031, 373.558 )
+
+[node name="Soldier2" parent="Units/Blue" instance=ExtResource( 3 )]
+position = Vector2( 841.888, 416.517 )
+
+[node name="Network" type="Node" parent="."]
+script = ExtResource( 4 )
+[connection signal="connected_to_server" from="Network" to="." method="_on_change_connection" binds= [ "Client" ]]
+[connection signal="connecting_to_server" from="Network" to="." method="_on_change_connection" binds= [ "Connecting ..." ]]
+[connection signal="creating_server" from="Network" to="." method="_on_change_connection" binds= [ "Creating Server ..." ]]
+[connection signal="server_created" from="Network" to="." method="_on_change_connection" binds= [ "Server" ]]
+
+[editable path="Units/Red/Soldier"]
+
+[editable path="Units/Red/Soldier2"]
+
+[editable path="Units/Red/Soldier3"]

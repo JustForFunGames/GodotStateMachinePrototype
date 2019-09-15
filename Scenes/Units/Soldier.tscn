@@ -1,26 +1,48 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://Scripts/Soldier.gd" type="Script" id=1]
-[ext_resource path="res://GFX/Sprites/soldier01.png" type="Texture" id=2]
-[ext_resource path="res://Scripts/UnitStateMachine.gd" type="Script" id=3]
+[ext_resource path="res://Scenes/Units/Selection.tres" type="StyleBox" id=2]
+[ext_resource path="res://GFX/Sprites/soldier01.png" type="Texture" id=3]
+[ext_resource path="res://Scripts/UnitStateMachine.gd" type="Script" id=4]
 
-[sub_resource type="CapsuleShape2D" id=2]
+[sub_resource type="CapsuleShape2D" id=1]
 radius = 18.4395
 height = 59.121
 
 [node name="Soldier" type="KinematicBody2D"]
 position = Vector2( 408, 259 )
+collision_layer = 3
+collision_mask = 31
 script = ExtResource( 1 )
-__meta__ = {
-"_edit_group_": true
-}
+
+[node name="Selected" type="Button" parent="."]
+visible = false
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -44.0
+margin_top = -44.0
+margin_right = 44.0
+margin_bottom = 44.0
+custom_styles/hover = ExtResource( 2 )
+custom_styles/pressed = ExtResource( 2 )
+custom_styles/focus = ExtResource( 2 )
+custom_styles/normal = ExtResource( 2 )
 
 [node name="Sprite" type="Sprite" parent="."]
 rotation = -1.5708
-texture = ExtResource( 2 )
+texture = ExtResource( 3 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-shape = SubResource( 2 )
+visible = false
+shape = SubResource( 1 )
 
-[node name="UnitStateMachine" type="Node" parent="."]
-script = ExtResource( 3 )
+[node name="UnitStateMachine" type="Node" parent="." groups=[
+"GameState",
+]]
+script = ExtResource( 4 )
+
+[node name="RayCast2D" type="RayCast2D" parent="."]
+position = Vector2( 0, -44 )
+cast_to = Vector2( 0, -9999 )

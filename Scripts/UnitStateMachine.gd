@@ -14,13 +14,16 @@ const ACTION_SHOOT = "Shoot"
 const EPSILON = 0.01
 
 export var focused = false
+var game_state = null
 
 func focus():
+	print("focus unit " + parent.name)
 	focused = true
 	set_state(states.idle)
 	emit_signal("focused", name)
 
 func unfocus():
+	print("unfocus unit " + parent.name)
 	focused = false
 	set_state(states.waiting)
 	emit_signal("unfocused", name)
@@ -30,21 +33,25 @@ func _ready():
 	add_state("idle")
 	add_state("walk")
 	add_state("action")
+	add_state("finished")
 	call_deferred("set_state", states.idle)
 	
-	var game = get_tree().get_root().find_node("Game", true, false)
-	if game != null:
-		connect("enter_state", game, "_on_change_state", [state])
-
 func _state_logic(delta):
+	# walking and turning
 	if state == states.walk:
 		if Input.is_action_pressed(ACTION_FORWARD) or Input.is_action_pressed(ACTION_BACK):
 			parent.walk()
 		if Input.is_action_pressed(ACTION_LEFT) or Input.is_action_pressed(ACTION_RIGHT):
 			parent.turn()
-	if state == states.action:
+	# perform action (like shooting)
+	elif state == states.action:
 		if Input.is_action_pressed(ACTION_SHOOT):
-			parent.shoot()
+			parent.action()
+		else:
+			set_state(states.finished)
+	# finished
+	elif state == states.finished:
+		pass
 
 func get_movement_direction():
 	return get_direction("action_pressed", ACTION_FORWARD, ACTION_BACK)
@@ -69,29 +76,31 @@ func get_direction(function="", positive=null, negative=null):
 
 	return direction
 
+func enter_game_state(state):
+	game_state = state
+
+func _get_transition(delta):
+	if not focused:
+		return states.waiting
+		
+	if game_state == "walk_and_shoot":
+		if state in [states.idle, states.walk] and action_pressed(ACTION_SHOOT):
+			get_tree().call_group("UnitState", "on_unit_action")
+			return states.action
+		if state == states.idle and is_walking():
+			return states.walk
+		if state == states.walk and not is_walking():
+			return states.idle
+	elif game_state == 'shoot' and not action_pressed(ACTION_SHOOT):
+		get_tree().call_group("GameState", "finish_round")
+		return states.finished
+
+func is_walking():
+	return get_direction("action_pressed", ACTION_FORWARD, ACTION_BACK) \
+		or get_direction("action_pressed", ACTION_LEFT, ACTION_RIGHT)
+
 func action_pressed(action_name):
 	return Input.is_action_pressed(action_name) 
 
-func _get_transition(delta):
-	if focused:
-		match state:
-			states.idle:
-				if get_direction("action_pressed", ACTION_FORWARD, ACTION_BACK):
-					return states.walk
-				if get_direction("action_pressed", ACTION_LEFT, ACTION_RIGHT):
-					return states.walk
-			states.walk:
-				if not (Input.is_action_pressed(ACTION_FORWARD) or Input.is_action_pressed(ACTION_BACK) or
-					Input.is_action_pressed(ACTION_LEFT) or Input.is_action_pressed(ACTION_RIGHT)):
-					return states.idle
-			states.action:
-				if parent.done():
-					return states.idle
-	else:
-		return states.waiting
-
 func _enter_state(state, current):
-	emit_signal("enter_state", current)
-
-func _exit_state(current, next):
-	pass
+	get_tree().call_group("UnitState", "enter_unit_state", state, parent.name, focused)
